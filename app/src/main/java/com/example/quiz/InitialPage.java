@@ -3,10 +3,9 @@ package com.example.quiz;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.Chronometer;
 import android.widget.TextView;
@@ -15,7 +14,7 @@ public class InitialPage extends AppCompatActivity {
 
     Button btnComecar;
     TextView tvInitPage;
-    Chronometer chronometer;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,12 +28,12 @@ public class InitialPage extends AppCompatActivity {
 
         btnComecar = findViewById(R.id.btnComecar);
         btnComecar.setText("Clique aqui para começar!");
-        Intent tela2 = new Intent(this, QuestionsPage.class);
+
         btnComecar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Intent tela2 = new Intent(InitialPage.this, QuestionsPage.class);
                 startActivity(tela2);
-
             }
         });
 

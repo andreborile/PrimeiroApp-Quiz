@@ -8,17 +8,13 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import java.io.Serializable;
+
 public class ResultsPage extends AppCompatActivity {
 
     TextView tvFimScore, tvFimProg;
     Button btnVoltarPagInic;
-    Questions accQuestions;
-    int respondidas = QuestionsPage.count - QuestionsPage.jump;
-    float scoref = QuestionsPage.score;
-    int erradasf = respondidas - QuestionsPage.score;
-    float countf = QuestionsPage.count;
-    float aprov =  (scoref/respondidas)*100;
-    String fmtAprov = String.format("%.0f", aprov);
+    final QuestionsPage accQP = new QuestionsPage();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,11 +27,10 @@ public class ResultsPage extends AppCompatActivity {
 
         // setar textos
         tvFimProg.setText("Parabéns!\nVocê chegou ao fim do quiz!");
-        tvFimScore.setText("Questões respondidas: " + respondidas +
-                            "\nCertas: " + QuestionsPage.score +
-                            "\nErradas: " + erradasf +
-                            "\nNão respondidas: " + QuestionsPage.jump +
-                            "\nAproveitamento: " + fmtAprov + "%");
+        tvFimScore.setText( "Total de questões: " + accQP.getCount() +
+                            "\nRespostas certas: " + accQP.getScore() +
+                            "\nRespostas Erradas: " + (accQP.getCount() - accQP.getScore() - accQP.getJump()) +
+                            "\nPulos: " + accQP.getJump());
 
         // zerar argumentos
         zeraArgumentos();
@@ -51,15 +46,14 @@ public class ResultsPage extends AppCompatActivity {
             }
         });
 
-
     }
 
-    private void zeraArgumentos() {
-        QuestionsPage.score = 0;
-        QuestionsPage.count = 0;
-        QuestionsPage.jump = 0;
-        QuestionsPage.escolha = 0;
-
+        private void zeraArgumentos() {
+        accQP.setScore(0);
+        accQP.setCount(0);
+        accQP.setJump(0);
+        accQP.setChoice(' ');
+        accQP.setCountOp(0);
     }
 
 }

@@ -34,20 +34,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <Chronometer
-        android:id="@+id/chronometer"
-        android:layout_width="84dp"
-        android:layout_height="33dp"
-        android:format="00:00"
-        android:textColor="@color/black"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toTopOf="@+id/btnVoltarPagInic"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvFimScore"
-        app:layout_constraintVertical_bias="0.532" />
-
     <Button
         android:id="@+id/btnVoltarPagInic"
         android:layout_width="wrap_content"

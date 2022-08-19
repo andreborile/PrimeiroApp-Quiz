@@ -1,7 +1,6 @@
 package com.example.quiz;
 
 import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -9,69 +8,59 @@ import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import java.util.Timer;
+import java.io.Serializable;
 
-public class QuestionsPage extends AppCompatActivity {
+public final class QuestionsPage extends AppCompatActivity implements Serializable {
 
-    // acessar classe Questions
-    Questions accQuestions = new Questions();
     TextView tvQuestion, tvTxtInf;
     RadioGroup rdGroup;
     RadioButton rdBtn1, rdBtn2, rdBtn3, rdBtn4;
     Button btnResp, btnParar, btnPular;
+    DataBase accDB = new DataBase();
 
-    Timer timer;
-
-    public static int count = 0;
-    public static int score = 0;
-    public static int aux = 0;
-    public static int escolha = 0;
-    public static int jump = 0;
+    private static int count;
+    private static int countOp;
+    private static int score;
+    private static Character choice;
+    private static int jump;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.question_page);
 
-        // declaracoes ID
-        tvQuestion = findViewById(R.id.tvQuestion);
-        rdGroup = findViewById(R.id.rdGroup);
-        rdBtn1 = findViewById(R.id.rdBtn1);
-        rdBtn2 = findViewById(R.id.rdBtn2);
-        rdBtn3 = findViewById(R.id.rdBtn3);
-        rdBtn4 = findViewById(R.id.rdBtn4);
-        tvTxtInf = findViewById(R.id.tvTxtInf);
+        Intent tela3 = new Intent(QuestionsPage.this, ResultsPage.class);
+        tela3.putExtra("intCount", getCount());
 
-        Intent tela3 = new Intent(this, ResultsPage.class);
-
-        incrementaComparador();
         loadNewQuestion();
+        incrementaComparador();
         unCheck();
-
 
         // ACAO BOTAO RESPONDER
         btnResp = findViewById(R.id.btnResp);
         btnResp.setOnClickListener(new View.OnClickListener() {
-           @Override
+            @Override
             public void onClick(View v) {
-               incrementaComparador();
-               if (escolha == 0) {
-                   tvTxtInf.setText("Por favor, escolha uma alternativa!");
-               } else {
-                   if (escolha == accQuestions.getAnswers()[count]) {
-                       setScore(getScore() + 1);
-                   }
-                   count++;
-                   if (count == accQuestions.getQuestions().length) {
-                       finish();
-                       startActivity(tela3);
-                   } else {
-                       loadNewQuestion();
-                       unCheck();
-                   }
-               }
-           }
+                incrementaComparador();
+                if (getChoice() == ' ') {
+                    Toast.makeText(QuestionsPage.this, "Por favor, escolha uma alternativa! Score: " +getScore(), Toast.LENGTH_SHORT).show();
+                } else {
+                    if (getChoice() == accDB.getAnswers(getCount())) {
+                        setScore(getScore() + 1);
+                    }
+                    setCount(getCount()+1);
+                    setCountOp(getCountOp()+4);
+                    if (getCount() == accDB.getQuestionsSize()) {
+                        finish();
+                        startActivity(tela3);
+                    } else {
+                        loadNewQuestion();
+                        unCheck();
+                    }
+                }
+            }
         });
 
 
@@ -82,9 +71,10 @@ public class QuestionsPage extends AppCompatActivity {
             public void onClick(View v) {
 
                 incrementaComparador();
-                jump++;
-                count++;
-                if (count == accQuestions.getQuestions().length) {
+                setJump(getJump()+1);
+                setCount(getCount()+1);
+                setCountOp(getCountOp()+4);
+                if (getCount() == accDB.getQuestionsSize()) {
                     finish();
                     startActivity(tela3);
                 } else {
@@ -105,7 +95,12 @@ public class QuestionsPage extends AppCompatActivity {
             }
         });
 
+        // CAMPO TESTE
+        tvTxtInf = findViewById(R.id.tvTxtInf);
+        //tvTxtInf.setText("teste " + getScore());
     }
+
+    // MÉTODOS PRIVADOS
 
     private void unCheck() {
         RadioGroup rdGroupX = findViewById(R.id.rdGroup);
@@ -114,24 +109,32 @@ public class QuestionsPage extends AppCompatActivity {
 
     private void incrementaComparador() {
         if (rdBtn1.isChecked()) {
-            escolha = aux + 1;
+            setChoice('A');
         } else if (rdBtn2.isChecked()) {
-            escolha = aux + 2;
+            setChoice('B');
         } else if (rdBtn3.isChecked()) {
-            escolha = aux + 3;
+            setChoice('C');
         } else if (rdBtn4.isChecked()){
-            escolha = aux + 4;
+            setChoice('D');
         } else {
-            escolha = 0;
+            setChoice(' ');
         }
     }
 
     private void loadNewQuestion() {
-        tvQuestion.setText(accQuestions.getQuestions()[count]);
-        rdBtn1.setText(accQuestions.getOptions()[count][0]);
-        rdBtn2.setText(accQuestions.getOptions()[count][1]);
-        rdBtn3.setText(accQuestions.getOptions()[count][2]);
-        rdBtn4.setText(accQuestions.getOptions()[count][3]);
+        tvQuestion = findViewById(R.id.tvQuestion);
+        rdGroup = findViewById(R.id.rdGroup);
+        rdBtn1 = findViewById(R.id.rdBtn1);
+        rdBtn2 = findViewById(R.id.rdBtn2);
+        rdBtn3 = findViewById(R.id.rdBtn3);
+        rdBtn4 = findViewById(R.id.rdBtn4);
+
+        // set text
+        tvQuestion.setText(accDB.getQuestions(count));
+        rdBtn1.setText(accDB.getOptions(countOp));
+        rdBtn2.setText(accDB.getOptions(countOp + 1));
+        rdBtn3.setText(accDB.getOptions(countOp + 2));
+        rdBtn4.setText(accDB.getOptions(countOp + 3));
     }
 
     // GETTERS AND SETTERS
@@ -140,6 +143,38 @@ public class QuestionsPage extends AppCompatActivity {
     }
 
     public int getScore() {
-        return score;
+        return this.score;
+    }
+
+    public int getCount() {
+        return this.count;
+    }
+
+    public void setCount(int count) {
+        this.count = count;
+    }
+
+    public int getJump() {
+        return this.jump;
+    }
+
+    public void setJump(int jump) {
+        this.jump = jump;
+    }
+
+    public void setChoice(Character choice) {
+        this.choice = choice;
+    }
+
+    public int getChoice() {
+        return choice;
+    }
+
+    public int getCountOp() {
+        return countOp;
+    }
+
+    public void setCountOp(int countOp) {
+        this.countOp = countOp;
     }
 }
